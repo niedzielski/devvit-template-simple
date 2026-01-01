@@ -1,0 +1,17 @@
+{
+  "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
+  "name": "<% name %>",
+  "menu": {
+    "items": [
+      {
+        "description": "Create a new <% name %> post.",
+        "endpoint": "/internal/on/menu/new-post",
+        "label": "[<% name %>] New Post",
+        "location": "subreddit"
+      }
+    ]
+  },
+  "post": {"entrypoints": {"default": {"inline": true}}},
+  "server": {},
+  "marketingAssets": {"icon": "assets/icon.png"}
+}

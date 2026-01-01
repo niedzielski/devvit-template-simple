@@ -1,0 +1,5 @@
+// TypeScript config for isomorphic code.
+{
+  "extends": "../../tools/tsconfig-base.jsonc",
+  "compilerOptions": {"lib": ["WebWorker", "ES2023"]}
+}

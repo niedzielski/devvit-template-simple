@@ -1,0 +1,29 @@
+{
+  "devDependencies": {
+    "@biomejs/biome": "2.3.10",
+    "@devvit/web": "0.12.7",
+    "@types/node": "22.6.2",
+    "devvit": "0.12.7",
+    "esbuild": "0.27.2",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=22.6"
+  },
+  "license": "BSD-3-Clause",
+  "name": "devvit-template-simple",
+  "private": true,
+  "scripts": {
+    "build": "tools/build.ts -- --minify",
+    "clean": "rm -rf dist/ public/*.js*",
+    "format": "npm run lint -- --fix",
+    "lint": "biome check --error-on-warnings",
+    "playtest": "sh -c 'trap \"kill 0\" exit; npm start& tools/build.ts --watch& devvit playtest \"$@\"& wait' --",
+    "start": "tools/build.ts --local --watch",
+    "test": "npm run test:types && npm run lint && npm run test:unit && npm run build",
+    "test:types": "tsc --build",
+    "test:unit": "node --experimental-strip-types --no-warnings=ExperimentalWarning --test src/**/*.test.ts"
+  },
+  "type": "module",
+  "version": "0.0.0"
+}
