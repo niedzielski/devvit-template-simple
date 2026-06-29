@@ -1,26 +1,15 @@
-// TypeScript config for test code under src/**/*.test.ts and src/test/**/*.
+// TypeScript config for test code.
 {
-  "extends": "../../tools/tsconfig-base.jsonc",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "lib": ["DOM", "ES2023"],
-
-    "noEmit": true, // tsc is only used for type-checking.
-
     "types": ["node"]
   },
-  "include": [
-    "${configDir}/",
-    "${configDir}/**/*.json",
-    "../../**/*.test.ts",
-    "../../**/*.test*.json",
-    "../../**/test/",
-    "../../**/test/**/*.json"
-  ],
-  "exclude": ["../../node_modules/", "../../dist/"],
+  "include": ["../**/*.test.*", "../**/test/", "../**/test/**/*.json"],
+  "exclude": ["${configDir}/node_modules/", "${configDir}/dist/"],
   "references": [
     {"path": "../client/"},
     {"path": "../server/"},
-    {"path": "../shared/"},
-    {"path": "../../tools/"}
+    {"path": "../shared/"}
   ]
 }

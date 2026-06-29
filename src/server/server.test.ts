@@ -9,23 +9,31 @@ import {
   type HelloRequest,
   type HelloResponse,
 } from '../shared/api.ts'
-import {serverOnRequest} from './server.ts'
+import {onReq} from './server.ts'
 
 let server: Server
 let serverURL: string
 
-before(() => {
+before(async () => {
   server = createServer(async (req, rsp) => {
     await runWithContext(
       {userId: 't2_123', username: 'username'} as unknown as Context,
-      () => serverOnRequest(req, rsp),
+      () => onReq(req, rsp),
     )
-  }).listen()
+  })
+  await new Promise<void>(resolve => {
+    server.listen(0, '127.0.0.1', () => resolve())
+  })
   const info = server.address() as AddressInfo
-  serverURL = `http://localhost:${info.port}`
+  serverURL = `http://127.0.0.1:${info.port}`
 })
 
-after(() => server.close())
+after(async () => {
+  if (!server.listening) return
+  await new Promise<void>((resolve, reject) => {
+    server.close(err => (err ? reject(err) : resolve()))
+  })
+})
 
 test('hello', async () => {
   const req: HelloRequest = {uuid: '0-1-2-3-4-5'}

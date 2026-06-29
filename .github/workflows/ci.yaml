@@ -27,4 +27,4 @@ jobs:
       - name: Unit Test
         run: npm run test:unit
       - name: Build
-        run: npx tsc --build
+        run: npm run build

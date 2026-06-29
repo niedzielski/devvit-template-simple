@@ -15,60 +15,67 @@ import {
   type HelloResponse,
 } from '../shared/api.ts'
 
-export async function serverOnRequest(
-  req: IncomingMessage,
-  rsp: ServerResponse,
+type AnyResponse =
+  | GoodbyeResponse
+  | HelloResponse
+  | UiResponse
+  | TriggerResponse
+  | ErrorResponse
+
+export async function onReq(
+  reqMsg: IncomingMessage,
+  rspMsg: ServerResponse,
 ): Promise<void> {
   try {
-    await onRequest(req, rsp)
+    await route(reqMsg, rspMsg)
   } catch (err) {
     const msg = `server error; ${err instanceof Error ? err.stack : err}`
     console.error(msg)
-    writeJSON<ErrorResponse>(500, {error: msg, status: 500}, rsp)
+    writeJson<ErrorResponse>(500, {error: msg, status: 500}, rspMsg)
   }
 }
 
-async function onRequest(
-  req: IncomingMessage,
-  rsp: ServerResponse,
+async function route(
+  reqMsg: IncomingMessage,
+  rspMsg: ServerResponse,
 ): Promise<void> {
-  const endpoint = req.url?.slice(1) as Endpoint | undefined
+  const endpoint = reqMsg.url?.slice(1) as Endpoint | undefined
 
-  let body: TriggerResponse | ErrorResponse
+  let rsp: AnyResponse
   switch (endpoint) {
     case Endpoint.Hello:
-      body = await onHello(req)
+      rsp = await routeHello(reqMsg)
       break
     case Endpoint.Goodbye:
-      body = await onGoodbye(req)
+      rsp = await routeGoodbye(reqMsg)
       break
     case Endpoint.OnMenuNewPost:
-      body = await onMenuNewPost(req)
+      rsp = await routeMenuNewPost()
       break
     default:
       endpoint satisfies undefined
-      body = {error: 'not found', status: 404}
+      rsp = {error: 'not found', status: 404}
       break
   }
 
-  writeJSON<PartialJsonValue>('status' in body ? body.status : 200, body, rsp)
+  writeJson<PartialJsonValue>('status' in rsp ? rsp.status : 200, rsp, rspMsg)
 }
 
-async function onGoodbye(req: IncomingMessage): Promise<GoodbyeResponse> {
-  const msg = await readJSON<GoodbyeRequest>(req)
+async function routeGoodbye(reqMsg: IncomingMessage): Promise<GoodbyeResponse> {
+  const msg = await readJson<GoodbyeRequest>(reqMsg)
   if (!context.userId) throw Error('no user ID')
   console.log(`user ${context.username} disconnected session ${msg.uuid}`)
   return {}
 }
 
-async function onHello(req: IncomingMessage): Promise<HelloResponse> {
-  const msg = await readJSON<HelloRequest>(req)
+async function routeHello(reqMsg: IncomingMessage): Promise<HelloResponse> {
+  const msg = await readJson<HelloRequest>(reqMsg)
   if (!context.userId) throw Error('no user ID')
   console.log(`user ${context.username} connected session ${msg.uuid}`)
   return {}
 }
 
-async function onMenuNewPost(_req: IncomingMessage): Promise<UiResponse> {
+async function routeMenuNewPost(): Promise<UiResponse> {
   const post = await reddit.submitCustomPost({title: context.appName})
   return {
     showToast: {text: `Post ${post.id} created.`, appearance: 'success'},
@@ -76,14 +83,14 @@ async function onMenuNewPost(_req: IncomingMessage): Promise<UiResponse> {
   }
 }
 
-async function readJSON<T>(req: IncomingMessage): Promise<T> {
+async function readJson<T>(req: IncomingMessage): Promise<T> {
   const chunks: Uint8Array[] = []
   req.on('data', chunk => chunks.push(chunk))
   await once(req, 'end')
   return JSON.parse(`${Buffer.concat(chunks)}`)
 }
 
-function writeJSON<T extends PartialJsonValue>(
+function writeJson<T extends PartialJsonValue>(
   status: number,
   json: Readonly<T>,
   rsp: ServerResponse,

@@ -11,7 +11,12 @@
       }
     ]
   },
-  "post": {"entrypoints": {"default": {"inline": true}}},
+  "post": {},
   "server": {},
-  "marketingAssets": {"icon": "assets/icon.png"}
+  "scripts": {
+    "dev": "npm run watch"
+  },
+  "marketingAssets": {
+    "icon": "assets/icon.png"
+  }
 }

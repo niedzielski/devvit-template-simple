@@ -1,8 +1,8 @@
 #!/usr/bin/env -S node --experimental-strip-types --no-warnings=ExperimentalWarning
 import {createServer, getServerPort} from '@devvit/web/server'
-import {serverOnRequest} from './server.ts'
+import {onReq} from './server.ts'
 
-const server = createServer(serverOnRequest)
+const server = createServer(onReq)
 const port: number = getServerPort()
 
 server.on('error', err => console.error(`server error; ${err.stack}`))
