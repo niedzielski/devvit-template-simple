@@ -11,7 +11,7 @@
     "node": ">=22.6"
   },
   "license": "BSD-3-Clause",
-  "name": "devvit-template-simple",
+  "name": "<% name %>",
   "private": true,
   "scripts": {
     "build": "npm run build:client -- --metafile=dist/client.meta.json --minify && npm run build:server -- --metafile=dist/server.meta.json --minify",
